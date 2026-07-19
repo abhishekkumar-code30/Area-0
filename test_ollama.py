@@ -7,13 +7,30 @@ headers = {
     "Authorization": f"Bearer {API_KEY}"
 }
 
-prompt = input("Ask something: ")
-payload = {
-    "model": "gemma4:31b",
-    "prompt": prompt,
-    "stream": False
-}
+messages =[]
 
-response = requests.post(f"{OLLAMA_URL}/generate", headers=headers, json=payload)
-result = response.json()
-print(result["response"])
+while True:
+    user_input = input("\nYou: ")
+
+    messages.append({"role": "user", "content": user_input})
+
+    payload = {
+        "model": "gemma4:31b",
+        "messages": messages,
+        "stream": False
+    }
+
+    response = requests.post(f"{OLLAMA_URL}/chat", headers=headers, json=payload)
+    result = response.json()
+
+    assistant_message = result["message"]["content"]
+    if user_input.lower() == "/exit":
+        print("Goodbye!")
+        break
+
+    if not user_input:
+        print("(empty input, try again)")
+        continue
+    messages.append({"role": "assistant", "content": assistant_message})
+
+    print(f"\nMark 1: {assistant_message}")
